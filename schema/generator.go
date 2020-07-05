@@ -650,10 +650,11 @@ func (g *Generator) haveSameDataType(current Column, desired Column) bool {
 		(current.array == desired.array) &&
 		(desired.charset == "" || current.charset == desired.charset) && // detect change column only when set explicitly. TODO: can we calculate implicit charset?
 		(desired.collate == "" || current.collate == desired.collate) && // detect change column only when set explicitly. TODO: can we calculate implicit collate?
-		reflect.DeepEqual(current.onUpdate, desired.onUpdate)
+		reflect.DeepEqual(current.onUpdate, desired.onUpdate) &&
+		(current.length == nil || desired.length == nil || reflect.DeepEqual(current.length, desired.length)) &&
+		(current.scale == nil || desired.scale == nil || reflect.DeepEqual(current.scale, desired.scale))
 
-	// TODO: check length, scale
-
+	// TODO: Better length and scale comparison considering datatypes and aliases.
 	// TODO: Examine unique key properly with table indexes (primary key is already examined)
 	//	(current.keyOption == desired.keyOption)
 }

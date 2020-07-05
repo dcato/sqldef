@@ -739,6 +739,113 @@ func TestMysqldefDefaultValue(t *testing.T) {
 	assertApplyOutput(t, createTable, nothingModified)
 }
 
+func TestMysqldefVarcharLength(t *testing.T) {
+	resetTestDatabase()
+
+	createTable := stripHeredoc(`
+		CREATE TABLE users (
+		  id int(10) NOT NULL,
+		  name varchar(20)
+		);
+		`,
+	)
+	assertApplyOutput(t, createTable, applyPrefix+createTable)
+	assertApplyOutput(t, createTable, nothingModified)
+
+	createTable = stripHeredoc(`
+		CREATE TABLE users (
+		  id int(10) NOT NULL,
+		  name varchar(20)
+		);
+		`,
+	)
+	assertApplyOutput(t, createTable, nothingModified)
+
+	createTable = stripHeredoc(`
+		CREATE TABLE users (
+		  id int(10) NOT NULL,
+		  name varchar(40)
+		);
+		`,
+	)
+	assertApplyOutput(t, createTable, applyPrefix+"ALTER TABLE users CHANGE COLUMN name name varchar(40);\n")
+	assertApplyOutput(t, createTable, nothingModified)
+}
+
+func TestMysqldefCharLength(t *testing.T) {
+	resetTestDatabase()
+
+	createTable := stripHeredoc(`
+		CREATE TABLE users (
+		  id int(10) NOT NULL,
+		  name char(10)
+		);
+		`,
+	)
+	assertApplyOutput(t, createTable, applyPrefix+createTable)
+	assertApplyOutput(t, createTable, nothingModified)
+
+	createTable = stripHeredoc(`
+		CREATE TABLE users (
+		  id int(10) NOT NULL,
+		  name char(10)
+		);
+		`,
+	)
+	assertApplyOutput(t, createTable, nothingModified)
+
+	createTable = stripHeredoc(`
+		CREATE TABLE users (
+		  id int(10) NOT NULL,
+		  name char(20)
+		);
+		`,
+	)
+	assertApplyOutput(t, createTable, applyPrefix+"ALTER TABLE users CHANGE COLUMN name name char(20);\n")
+	assertApplyOutput(t, createTable, nothingModified)
+}
+
+func TestMysqldefDecimalPrecision(t *testing.T) {
+	resetTestDatabase()
+
+	createTable := stripHeredoc(`
+		CREATE TABLE users (
+		  id decimal(10) NOT NULL
+		);
+		`,
+	)
+	assertApplyOutput(t, createTable, applyPrefix+createTable)
+	assertApplyOutput(t, createTable, nothingModified)
+
+	createTable = stripHeredoc(`
+		CREATE TABLE users (
+		  id decimal(10,0) NOT NULL
+		);
+		`,
+	)
+	// decimal(10) == decimal(10, 0)
+	assertApplyOutput(t, createTable, nothingModified)
+
+	createTable = stripHeredoc(`
+		CREATE TABLE users (
+		  id decimal(10,2) NOT NULL
+		);
+		`,
+	)
+	assertApplyOutput(t, createTable, applyPrefix+"ALTER TABLE users CHANGE COLUMN id id decimal(10, 2) NOT NULL;\n")
+	assertApplyOutput(t, createTable, nothingModified)
+
+
+	createTable = stripHeredoc(`
+		CREATE TABLE users (
+		  id decimal(20,2) NOT NULL
+		);
+		`,
+	)
+	assertApplyOutput(t, createTable, applyPrefix+"ALTER TABLE users CHANGE COLUMN id id decimal(20, 2) NOT NULL;\n")
+	assertApplyOutput(t, createTable, nothingModified)
+}
+
 func TestMysqldefIndexWithDot(t *testing.T) {
 	resetTestDatabase()
 
